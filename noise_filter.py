@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal.windows import triang  # Poprawiony import
+from scipy.signal.windows import triang 
 
 
 def generate_triangle_signal(length_per_period, num_periods):
