@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal.windows import triang  # Poprawiony import
+from scipy.signal.windows import triang 
 
 
 def generate_triangle_signal(length_per_period, num_periods):
@@ -23,7 +23,7 @@ def add_noise(signal, noise_level):
 
     Args:
         signal: Signal on which noise will be applied.
-        noise_level (float, 0 to 1): Variance of noise that will be applied on signal.  
+        noise_level (float, 0 to 1): Standard deviation of noise that will be applied on signal.  
 
     Returns:
         Triangle signal with noise applied.
@@ -42,7 +42,7 @@ def moving_average_filter(signal, window_size):
     Returns:
         Filtered signal.
     """
-    return np.convolve(signal, np.ones(window_size) / window_size, mode='same')
+    return np.convolve(signal, np.ones(window_size) / window_size, mode='same') 
 
 def calculate_mse(original, estimated):
     """
@@ -85,9 +85,9 @@ def find_optimal_window(signal, noisy_signal, max_window):
 # Signal parameters
 length_per_period = 100  # Length of one period
 num_periods = 5          # Number of periods
-noise_level_1 = 0.1      # Low level of noise variance
-noise_level_2 = 0.2      # Higher level of noise variance
-max_window_size = 50     # Maximum size of windows to be considered
+noise_level_1 = 0.1      # Low level of noise
+noise_level_2 = 0.2      # Higher level of noise
+max_window_size = 100     # Maximum size of windows to be considered
 
 # Generating signals (original and two with different noises)
 original_signal = generate_triangle_signal(length_per_period, num_periods)
@@ -108,14 +108,17 @@ plt.plot(original_signal, '.', label='Oryginalny sygnał')
 plt.plot(noisy_signal_1, '.', label='Zaszumiony sygnał (niski szum)', alpha=0.7)
 plt.title('Oryginalny sygnał i zaszumiony sygnał (niski poziom szumu)')
 plt.legend()
+plt.savefig("plots/original_noised_signal_01.pdf")
 plt.show()
+
 
 # Plot 2: Noised signal and estimated signal (low noise)
 plt.figure(figsize=(10, 6))
 plt.plot(noisy_signal_1, '.', label='Zaszumiony sygnał (niski szum)', alpha=0.7) 
-plt.plot(filtered_signal_1, '--', label=f'Estymowany sygnał (okno={optimal_window_1})')
+plt.plot(filtered_signal_1, '.', label=f'Estymowany sygnał (okno={optimal_window_1})')
 plt.title('Zaszumiony sygnał i estymowany sygnał (niski poziom szumu)')
 plt.legend()
+plt.savefig("plots/noised_estimated_signal_01.pdf")
 plt.show()
 
 # Plot 3: MSE dependence on the window size (low noise)
@@ -126,6 +129,7 @@ plt.title('MSE w funkcji wielkości okna (niski poziom szumu)')
 plt.xlabel('Rozmiar okna')
 plt.ylabel('MSE')
 plt.legend()
+plt.savefig("plots/mse_window01.pdf")
 plt.show()
 
 # Plot 4: Original signal and noised signal (high noise)
@@ -134,14 +138,16 @@ plt.plot(original_signal, '.', label='Oryginalny sygnał')
 plt.plot(noisy_signal_2, '.', label='Zaszumiony sygnał (wysoki szum)', alpha=0.7) 
 plt.title('Oryginalny sygnał i zaszumiony sygnał (wysoki poziom szumu)')
 plt.legend()
+plt.savefig("plots/original_noised_signal_02/pdf")
 plt.show()
 
 # Plot 5: Noised signal and estimated signal (high noise)
 plt.figure(figsize=(10, 6))
 plt.plot(noisy_signal_2, '.', label='Zaszumiony sygnał (wysoki szum)', alpha=0.7)
-plt.plot(filtered_signal_2, '--', label=f'Estymowany sygnał (okno={optimal_window_2})')
+plt.plot(filtered_signal_2, '.', label=f'Estymowany sygnał (okno={optimal_window_2})')
 plt.title('Zaszumiony sygnał i estymowany sygnał (wysoki poziom szumu)')
 plt.legend()
+plt.savefig("plots/noised_estimated_signal_02.pdf")
 plt.show()
 
 # Plot 6: MSE dependence on the window size (high noise)
@@ -152,4 +158,5 @@ plt.title('MSE w funkcji wielkości okna (wysoki poziom szumu)')
 plt.xlabel('Rozmiar okna')
 plt.ylabel('MSE')
 plt.legend()
+plt.savefig("plots/mse_window02.pdf")
 plt.show()
