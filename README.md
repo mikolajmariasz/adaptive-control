@@ -1,0 +1,2 @@
+# Triangle wave signal processing
+This script handles generating a triangle wave signal, adding noise and filtering with a moving average window that minimize MSE. Also, it visualizes the signal, noise effects and filter performance.
