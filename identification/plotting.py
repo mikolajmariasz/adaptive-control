@@ -2,6 +2,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+colors = {
+    "Theta_real": ['#69b3e7', '#ffcc80', '#6fcf97'],  # Jaśniejsze kolory dla rzeczywistych
+    "Theta_estimated": ['#145a86', '#cc6600', '#1f7a1f']  # Ciemniejsze kolory dla estymowanych
+}
 def plot_mse(lambda_values, errors, optimal_lambda):
     plt.figure(figsize=(10, 6))
     plt.plot(lambda_values, errors, marker='o', label='Średni błąd kwadratowy MSE dla różnych $\lambda$')
@@ -15,12 +19,12 @@ def plot_mse(lambda_values, errors, optimal_lambda):
 
 def plot_theta_history(t, Theta, estimated_Theta_history, optimal_lambda):
     plt.figure(figsize=(12, 8))
-    plt.plot(t, estimated_Theta_history[:, 0], label=r'$\hat{\Theta}_0$', color='C0')
-    plt.plot(t, estimated_Theta_history[:, 1], label=r'$\hat{\Theta}_1$', color='C1')
-    plt.plot(t, estimated_Theta_history[:, 2], label=r'$\hat{\Theta}_2$', color='C2')
-    plt.plot(t, Theta[:, 0], 'C0--', label=r'$\Theta_0$ (rzeczywiste)')
-    plt.plot(t, Theta[:, 1], 'C1--', label=r'$\Theta_1$ (rzeczywiste)')
-    plt.plot(t, Theta[:, 2], 'C2--', label=r'$\Theta_2$ (rzeczywiste)')
+    # Dla każdej zmiennej Theta rysujemy estymowane i rzeczywiste wartości w odpowiednich kolorach
+    for i in range(Theta.shape[1]):
+        plt.plot(t, Theta[:, i], label=rf'$\Theta_{i}$ (rzeczywiste)', 
+                 color=colors["Theta_real"][i], linestyle='-')
+        plt.plot(t, estimated_Theta_history[:, i], label=rf'$\hat{{\Theta}}_{i}$ (estymowane)', 
+                 color=colors["Theta_estimated"][i], linestyle='--')
     plt.title(f'$\Theta*$ z zapominaniem (λ = {optimal_lambda:.4f})')
     plt.xlabel('Czas')
     plt.ylabel('Estymowane wartości $\Theta$')
