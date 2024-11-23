@@ -24,7 +24,7 @@ def plot_theta_history(t, Theta, estimated_Theta_history, optimal_lambda):
         plt.plot(t, Theta[:, i], label=rf'$\Theta_{i}$ (rzeczywiste)', 
                  color=colors["Theta_real"][i], linestyle='-')
         plt.plot(t, estimated_Theta_history[:, i], label=rf'$\hat{{\Theta}}_{i}$ (estymowane)', 
-                 color=colors["Theta_estimated"][i], linestyle='--')
+                 color=colors["Theta_estimated"][i], linestyle='-')
     plt.title(f'$\Theta*$ z zapominaniem (λ = {optimal_lambda:.4f})')
     plt.xlabel('Czas')
     plt.ylabel('Estymowane wartości $\Theta$')
