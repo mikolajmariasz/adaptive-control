@@ -1,1 +1,4 @@
+# IDE
 .venv/
+# Cache
+*.pyc
