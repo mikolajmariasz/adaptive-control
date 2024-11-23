@@ -31,3 +31,12 @@ def plot_theta_history(t, Theta, estimated_Theta_history, optimal_lambda):
     plt.legend()
     plt.grid(True)
     plt.show()
+
+def plot_outputs(expected_output, calculated_output):
+    plt.figure(figsize=(12, 8))
+    plt.plot(expected_output,label='expected output')
+    plt.plot(calculated_output + 1,label='calculated output')
+    plt.title(f'$d_k$ do rzeczywistego $y_k$')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
