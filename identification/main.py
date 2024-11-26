@@ -1,51 +1,9 @@
 # main.py
 import numpy as np
-from simulation import generate_signals, simulate_system
-from rls import run_rls
-from plotting import plot_mse, plot_theta_history
-
-def identification(model, samples, t, u_k, triangular_signal, z_k):
-    # Theta* transposed
-    ThetaT = model.T
-
-    # Simulation
-    y_k = simulate_system(samples, u_k, triangular_signal, z_k, ThetaT)
-
-    # Phi matrix initialization (u_(k), u_(k-1), u_(k-2))
-    Phi = np.zeros((samples, 3))
-    for k in range(2, samples):
-        Phi[k] = np.array([u_k[k], u_k[k-1], u_k[k-2]])
-
-    # Lambda values to consider in  optimization
-    lambda_values = np.linspace(0.1, 1, 15)
-
-    # Storing errors for estimated model parameters
-    errors = []
-    estimated_Theta = []
-
-    # Run estimation for every lambda value
-    for lambda_forgetting in lambda_values:
-        estimated_Theta_history = run_rls(y_k, Phi, lambda_forgetting)
-        # Calculate MSE
-        mse = np.mean((ThetaT[2:samples, 1] - estimated_Theta_history[2:samples, 1]) ** 2)
-        errors.append(mse)
-        estimated_Theta.append(estimated_Theta_history)
-
-    # Finding optimal Lambda
-    optimal_lambda_idx = np.argmin(errors)
-    optimal_lambda = lambda_values[optimal_lambda_idx]
-
-    print(f"Optimal lambda value: {optimal_lambda:.4f}")
-    print(f"Minimal MSE: {errors[optimal_lambda_idx]:.6f}")
-
-    # Error vs Lambda
-    plot_mse(lambda_values, errors, optimal_lambda)
-
-    # Running RLS with optimal lambda
-    estimated_Theta_history_optimal = run_rls(y_k, Phi, optimal_lambda)
-
-    # Estimated Parameters vs Time
-    plot_theta_history(t, ThetaT, estimated_Theta_history_optimal, optimal_lambda)
+from signal_generation import generate_time_samples, generate_triangular_signal, generate_noise_signal, generate_uniform_signal
+from identification import identification
+from adaptive_control import adaptive_control
+from plotting import plot_mse, plot_adaptive_control_results, plot_error_history
 
 if __name__ == "__main__":
     # Parameters of experiment
@@ -53,15 +11,20 @@ if __name__ == "__main__":
     frequency = 2
     seed = 42
 
-    t, u_k, triangular_signal, z_k = generate_signals(samples, frequency, seed)
+    # Generate signals
+    t = generate_time_samples(samples)
+    triangular_signal = generate_triangular_signal(samples, frequency)
+    z_k = generate_noise_signal(samples, 0.05, seed=seed)
+    u_k = generate_uniform_signal(samples, seed=seed)
+
     # --- Identification of Static Model
     print("Identification of Static Model")
     staticModel = np.vstack([
-        1.5 * np.ones(samples),      # Theta_0 = 1.5 (const)
-        1.0 * np.ones(samples),      # Theta_1 = 1.0 (const)
-        0.5 * np.ones(samples)       # Theta_2 = 0.5 (const)
+        1.5 * np.ones(samples),  # Theta_0 = 1.5 (const)
+        1.0 * np.ones(samples),  # Theta_1 = 1.0 (const)
+        0.5 * np.ones(samples)   # Theta_2 = 0.5 (const)
     ])
-    identification(staticModel, samples, t, u_k, triangular_signal, z_k)
+    identification(staticModel, samples, t, u_k, z_k)
 
     # --- Identification of Dynamic Model
     print("Identification of Dynamic Model")
@@ -70,4 +33,32 @@ if __name__ == "__main__":
         triangular_signal,           # Theta_1 = triangle signal
         0.5 * np.ones(samples)       # Theta_2 = 0.5 (const)
     ])
-    identification(dynamicModel, samples, t, u_k, triangular_signal, z_k)
+    identification(dynamicModel, samples, t, u_k, z_k)
+
+    # --- Adaptive Control
+    print("Running Adaptive Control")
+    lambda_values = np.linspace(0.1, 1, 15)
+    errors = []
+
+    for lambda_factor in lambda_values:
+        b_history, cumulative_mse, y_k, d_k, time_steps, error_history = adaptive_control(
+            dynamicModel, z_k, num_samples=samples, lambda_factor=lambda_factor)
+        mse = cumulative_mse[-1]  
+        errors.append(mse)
+
+    optimal_lambda_idx = np.argmin(errors)
+    optimal_lambda = lambda_values[optimal_lambda_idx]
+
+    print(f"Optymalna wartość lambda: {optimal_lambda:.4f}")
+    print(f"Minimalny MSE: {errors[optimal_lambda_idx]:.6f}")
+
+    plot_mse(lambda_values, errors, optimal_lambda,
+             ylabel='Średni Błąd Kwadratowy (MSE) pomiędzy $y_k$ a $d_k$',
+             title='Optymalizacja współczynnika zapominania (λ)')
+
+    b_history, cumulative_mse, y_k, d_k, time_steps, error_history = adaptive_control(
+        dynamicModel, z_k, num_samples=samples, lambda_factor=optimal_lambda)
+
+    plot_adaptive_control_results(y_k, d_k, time_steps)
+
+    plot_error_history(error_history, time_steps)
