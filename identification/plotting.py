@@ -45,7 +45,6 @@ def plot_adaptive_control_results(y, d_k, time_steps):
     plt.grid()
     plt.show()
 
-# plotting.py
 def plot_error_history(error_history, time_steps):
     plt.figure(figsize=(12, 6))
     plt.plot(time_steps, error_history, color='blue')
